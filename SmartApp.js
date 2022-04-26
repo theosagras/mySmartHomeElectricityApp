@@ -40,8 +40,11 @@ if (Notification.permission === "granted"){
                 body: "Heymate, how are you?"
         });
     }
+    
+    /*
 // Communication functions
     var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
+    
     //var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
@@ -243,5 +246,5 @@ $('#CloseRelay8').on('click', function () {
 
 
 
-
+*/
 });
