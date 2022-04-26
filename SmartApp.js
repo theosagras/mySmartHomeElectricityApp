@@ -39,6 +39,7 @@ if (Notification.permission === "granted"){
         const notification = new Notification("New message from dcode!",{
                 body: "Heymate, how are you?"
         });
+        document.getElementById("audio").play();
     }
     
     /*
