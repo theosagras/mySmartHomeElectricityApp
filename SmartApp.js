@@ -24,7 +24,7 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 if (Notification.permission === "granted"){
     showNotification();
 }
-    elseif (Notification.permission !== "denied")
+    else if (Notification.permission !== "denied")
     {
         Notification.requestPermission().then(permission => {
             if (permission === "granted")
