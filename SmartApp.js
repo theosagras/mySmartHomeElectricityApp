@@ -21,7 +21,25 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
     
 }, false);
 
-
+if (Notification.permission === "granted"){
+    showNotification();
+}
+    elseif (Notification.permission !== "denied")
+    {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted")
+            {
+                showNotification();
+            }
+        });
+    }
+    
+    function showNotification()
+    {
+        const notification = new Notification("New message from dcode!",{
+                body: "Heymate, how are you?"
+        });
+    }
 // Communication functions
     var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
     //var ws = new WebSocket('ws://localhost:8090');
