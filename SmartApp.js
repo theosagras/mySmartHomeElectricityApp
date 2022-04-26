@@ -21,6 +21,8 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
     
 }, false);
 
+    
+$('#OpenRelay1').on('click', function () {
 if (Notification.permission === "granted"){
     showNotification();
 }
@@ -41,6 +43,11 @@ if (Notification.permission === "granted"){
         });
         document.getElementById("audio").play();
     }
+     
+});
+    
+    
+
     
     /*
 // Communication functions
