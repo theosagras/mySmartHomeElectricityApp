@@ -106,7 +106,18 @@ function updateMeasurements(){
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  fetch(urla).then(response => response.text())
+  
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   fetch(urla).then(response => response.text())
     .then(data =>{;
     dataObj=JSON.parse(data);
    
