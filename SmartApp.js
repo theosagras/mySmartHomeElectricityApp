@@ -52,7 +52,7 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 // Communication functions
     //var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
 	    
-	var ws = new WebSocket('wss://fair-toes-fry-109-242-74-79.loca.lt);
+	var wss = new WebSocket('wss://fair-toes-fry-109-242-74-79.loca.lt);
     //var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
