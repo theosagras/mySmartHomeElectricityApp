@@ -52,7 +52,7 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 // Communication functions
     //var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
 	    
-	var ws = new WebSocket('wss://puny-apes-invite-109-242-74-79.loca.lt');
+	var ws = new WebSocket('wss://brown-tips-tan-109-242-74-79.loca.lt');
     //var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
@@ -101,25 +101,17 @@ function updateMeasurements(){
     
       //let urla = 'https://reqres.in/api/users'
    
-   //let urla = 'http://localhost:3000'
-   let urla = 'https://thick-llamas-shake-109-242-74-79.loca.lt'
+   //let urla = 'http://localhost:3000';
+   let urla = 'https://polite-clowns-tell-109-242-74-79.loca.lt';
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   fetch(urla).then(response => response.text())
-    .then(data =>{;
+  fetch(urla).then(response => response.json())
+    .then(data =>{;{
     dataObj=JSON.parse(data);
+    console.log(dataObj);
+    }
    
     
       console.log(dataObj[0]);
