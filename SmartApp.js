@@ -393,7 +393,7 @@ async function createTable(){
          
                 }
                 if (!found)
-                    dataset.push(null);
+                    dataset.push(0);
             }
         
             
