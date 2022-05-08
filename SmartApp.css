@@ -3,6 +3,50 @@ html{
 
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Reset margins */
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+figure,
+picture {
+    margin: 0;
+}
+.openRelay{
+   color: green;
+}
+.closeRelay{
+   color: red;
+}
+
+.flex {
+    display: flex;
+    //align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  
+}
+.flexitem{
+ padding: .5em;
+   border: solid white;
+}
+h2 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.container {
+ text-align: left;
+}
 body {
     
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', Arial, sans-serif;
@@ -16,7 +60,9 @@ body {
 h1 {
     color: goldenrod;
 }
-
+.heading{
+    padding: 10px;
+}
 #passwordnput{
     padding-top: 5px;
     text-align: center;
