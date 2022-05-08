@@ -56,7 +56,7 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 // Communication functions
     //var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
 	    
-	var ws = new WebSocket('wss://ninety-ads-crash-109-242-73-166.loca.lt');
+	var ws = new WebSocket('wss://thick-pens-crash-188-73-233-99.loca.lt');
     //var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
