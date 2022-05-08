@@ -230,6 +230,7 @@ $('.closeRelay').on('click', function () {
     item.relay[numRelay]=false;
     item.whichAction=numRelay;
     console.log("closed Relay "+numRelay);
+    setDateDateToReceive();
    ws.send(JSON.stringify(item));
        disableBtns();
 });
