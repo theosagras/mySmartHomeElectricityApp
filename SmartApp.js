@@ -6,7 +6,7 @@ $(function () {
 //var items = [], selectedItem = null;
 var dataObj=null;//save json objects with measurements received file port3000
 var dataObjToday=null;//save json objects with measurements received file port3000
-
+var upOrDownHorTitle=17;//gia ektiposi ston pinaka oi orizintioi titloi na einai enallaks pano kato
 var item= {
     "corPassword":false,
     "password": "",//password
@@ -25,10 +25,10 @@ var items = {
     "UsbOn": false
 }
 
-function showDate(dates){
-    let date=new Date(dates);
+function showDate(datesa){
+    let date=new Date(datesa);
 
-    if (dates===null){
+    if (datesa===null){
         return "---"
     }
     else
@@ -123,7 +123,7 @@ function updateMeasurements(){
     if (items.dateDoorLastOpened===null||items.doorO===undefined)
         document.getElementById("doorOpened").textContent="-";
    else
-        document.getElementById("doorOpened").textContent=items.doorO;
+       document.getElementById("doorOpened").textContent=items.doorO;
     document.getElementById("Voltage1").textContent=(items.msrs[0]/10);
     document.getElementById("Current1").textContent=(items.msrs[1]/10);
     document.getElementById("ActivePower1").textContent=items.msrs[2];
@@ -150,28 +150,42 @@ function updateMeasurements(){
     }
    
     
-      console.log(dataObj[0]);
    // document.getElementById("dataFromFile1").textContent=dataObj.obj0.CorPass;
    //console.log(dataFromFile);
     }); 
         //document.getElementById("dataFromFile1").textContent=data);
     
 }
+setInterval(()=>{
+               const btnSwitch1=document.getElementById("switch1");
+           btnSwitch1.textContent = "TAKING VALUES";
+             btnSwitch1.disabled = true;
+             takeData();
+              setTimeout(()=>{
+                this.disabled = false;
+                btnSwitch1.textContent = "TAKE VALUES";
+                console.log('Button Activated')}, 2200);    
+   
+        }, 60000); 
  
  $('#switch1').on('click', function () {
-    //item.switch[0]=true;
+    takeData();
+        
+});
+function takeData()
+{
     item.whichAction=9;
     const btnSwitch1=document.getElementById("switch1");
     btnSwitch1.textContent = "WAIT";
     setDateDateToReceive();
    ws.send(JSON.stringify(item));
-   this.disabled = true;
+   btnSwitch1.disabled = true;
       setTimeout(()=>{
-        this.disabled = false;
+        btnSwitch1.disabled = false;
         btnSwitch1.textContent = "TAKE VALUES";
         console.log('Button Activated')}, 4000); 
-        
-});
+}
+
 /*
 $('#switch2').on('click', function () {
    // item.switch[1]=true;
@@ -230,7 +244,6 @@ $('.closeRelay').on('click', function () {
     item.relay[numRelay]=false;
     item.whichAction=numRelay;
     console.log("closed Relay "+numRelay);
-    setDateDateToReceive();
    ws.send(JSON.stringify(item));
        disableBtns();
 });
@@ -283,23 +296,26 @@ $('#downloadToday').on('click', function () {
     
      const buttonToday=document.getElementById("downloadToday");
           dataFromFileDisplay.textContent = "WAIT!";
-      item.whichAction=9;
+     
         buttonToday.disabled = true;
-    
-    setDateDateToReceive();
-      ws.send(JSON.stringify(item));
-           setTimeout(()=>{
-               
-            if (item.corPassword===true)
+        if (dataObj===null)
+        {
+           dataFromFileDisplay.textContent = "Take Values first!"; 
+        }
+        else 
+        {
+             if (item.corPassword===true)
                 takeTodaysData();
-             else buttonToday.disabled = false;       
+                else
+                dataFromFileDisplay.textContent = "Wrong Password!"; 
+                
+        }
+        setTimeout(()=>{
+               
+           
+             buttonToday.disabled = false;       
    
         }, 2000); 
-            
-           
-         
-    
-    
 });
 
 function takeTodaysData()
@@ -338,7 +354,8 @@ async function createTable(){
     console.log(numberOfMeas);
     
     let consum=0;
-    let prevConsum=Object.values(dataObj)[1].msrs[3];;
+    let prevConsum=Object.values(dataObj)[1].msrs[3];
+   
     console.log(prevConsum);
    
     for (let i=0;i<numberOfMeas;i++)
@@ -376,25 +393,29 @@ async function createTable(){
                  for (let k=0;k<datasetTemp.length;k++)
                  {
                      let strTemp=showDate(Object.values(datasetTemp)[k].cDt);
-                      console.log(strTemp);
+                  
                      let numHourAtmp=strTemp.charAt(11);
-                      console.log(numHourAtmp)
+                     
                     let numHourBtmp=strTemp.charAt(12);
-                   console.log(numHourBtmp)
+                  
                     let numHourtmp=parseInt(numHourAtmp+numHourBtmp);
-                    console.log(numHourtmp);
+                    
                          if (numHourtmp===m)
                              {
                                  consum=Object.values(datasetTemp)[k].msrs[3];
                                 dataset.push(consum-prevConsum);
                                 prevConsum=consum;
                                 found=true;
+                                continue;
                             }   
                                                   
          
                 }
                 if (!found)
-                    dataset.push(0);
+                {
+                    dataset.push(null);
+                    continue;
+                }
             }
         
             
@@ -434,7 +455,7 @@ for (let i=0;i<numberOfMeas;i++)
    
 }
 */
-var svgWidth = 800, svgHeight = 300, barPadding = 2;
+var svgWidth = 600, svgHeight = 300, barPadding = 3;
 var barWidth = (svgWidth / dataset.length);
 
 
@@ -470,7 +491,11 @@ var barChart = svg.selectAll("rect")
         return d;
     })
     .attr("y", function(d, i) {
-        return svgHeight -2;
+       
+        if (upOrDownHorTitle===17)
+            upOrDownHorTitle=0;
+        else upOrDownHorTitle=17;
+         return svgHeight -2-upOrDownHorTitle;
     })
     .attr("x", function(d, i) {
         return barWidth * i;
