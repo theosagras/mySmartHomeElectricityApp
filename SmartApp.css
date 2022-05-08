@@ -40,6 +40,18 @@ picture {
  padding: .5em;
    border: solid white;
 }
+.flex2{
+    display: flex;
+    //align-items: center;
+    justify-content: center;
+    gap: 0.45em;
+  
+}
+.tableTitles{
+width: 600px;
+margin: auto;
+border: solid white;
+}
 h2 {
     padding-top: 10px;
     padding-bottom: 10px;
