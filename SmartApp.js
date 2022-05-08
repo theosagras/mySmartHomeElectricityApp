@@ -24,7 +24,7 @@ var items = {
     "doorO": null,//dateDoorLastOpened
     "UsbOn": false
 }
-
+/*
 function showDate(dates){
     let date=new Date(dates);
 
@@ -44,7 +44,7 @@ function showDate(dates){
     
  return ""
 }
-
+*/
 document.getElementById('passwordnput').addEventListener('change', function(evt) {
     
     item.password=document.getElementById('passwordnput').value;
@@ -117,7 +117,7 @@ function refreshRelayButtons()
 }
 function updateMeasurements(){
    
-      document.getElementById("TimeMeasur1").textContent=showDate(items.cDt);
+      document.getElementById("TimeMeasur1").textContent=items.cDt;
     document.getElementById("Temperature").textContent=items.Tmpr;
     document.getElementById("Humidity").textContent=items.Hum;
     if (items.dateDoorLastOpened===null||items.doorO===undefined)
