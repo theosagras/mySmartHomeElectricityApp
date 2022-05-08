@@ -24,7 +24,7 @@ var items = {
     "doorO": null,//dateDoorLastOpened
     "UsbOn": false
 }
-/*
+
 function showDate(dates){
     let date=new Date(dates);
 
@@ -44,7 +44,7 @@ function showDate(dates){
     
  return ""
 }
-*/
+
 document.getElementById('passwordnput').addEventListener('change', function(evt) {
     
     item.password=document.getElementById('passwordnput').value;
