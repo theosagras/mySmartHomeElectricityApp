@@ -5,14 +5,18 @@ $(function () {
 
 //var items = [], selectedItem = null;
 var dataObj=null;//save json objects with measurements received file port3000
+var dataObjToday=null;//save json objects with measurements received file port3000
+
 var item= {
+    "corPassword":false,
     "password": "",//password
     "whichAction": 0, //1-8 relay,   9 on measurement1,    10 on measurement2 
-    "relay": [false,false,false,false,false,false,false,false,false]
-    //"switch": [false,false]
+    "relay": [false,false,false,false,false,false,false,false,false],
+     whichDateDataToSend:[0,0,0]
+            
 }
 var items = {
-    "psw": false,//correct password
+   // "psw": false,//correct password
     "msrs": [0, 0, 0, 0],//measurements
     "cDt": new Date(),//current date
     "Tmpr": null,//temperature
@@ -52,22 +56,29 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 // Communication functions
     //var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
 	    
-	var ws = new WebSocket('wss://brown-tips-tan-109-242-74-79.loca.lt');
+	var ws = new WebSocket('wss://ninety-ads-crash-109-242-73-166.loca.lt');
     //var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
             items = JSON.parse(msg.data);
-           if (items.psw===true)
+            if (items===null)
+                 item.corPassword=false;
+            else
+                item.corPassword=true;
+            const dataFromFileDisplay=document.getElementById("dataToday");
+           if (item.corPassword===true)
            {
+                dataFromFileDisplay.textContent = "";
             document.getElementById("passwordLabel").style.color="white";
             document.getElementById("passwordLabel").textContent="Enter Password: ";
            updateMeasurements();
-  
+            refreshRelayButtons();
            
            
            }
            else
            {
+          dataFromFileDisplay.textContent = "Wrong Password!";
            document.getElementById("passwordLabel").textContent="Wrong Password! Enter Password: ";
            document.getElementById("passwordLabel").style.color="darkred";
            }
@@ -78,9 +89,34 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
            // });
         });
     });
+function refreshRelayButtons()
+{
+    for (let i=1;i<item.relay.length;i++)
+    {
+        let str="open"+i;
+        const switElOpen= document.getElementById(str)
+        let str2="close"+i;
+        const switElClose= document.getElementById(str2)
 
+        if (item.relay[i]==true)
+            {
+                switElOpen.textContent='Relay#'+ i+ ' is ON';
+                switElClose.textContent='close-Relay#'+ i;
+                
+               // switElOpen.style.backgroundColor  = "black";
+               // switElClose.style.backgroundColor=  "goldenrod";
+            }
+        else
+            {
+                 switElOpen.textContent='open-Relay#'+ i;
+               // switElOpen.style.backgroundColor=  "goldenrod";
+              // switElClose.style.backgroundColor  = "black";
+               switElClose.textContent='Relay#'+ i+ ' is OFF';
+            }
+    }
+}
 function updateMeasurements(){
-    TimeMeasur1
+   
       document.getElementById("TimeMeasur1").textContent=showDate(items.cDt);
     document.getElementById("Temperature").textContent=items.Tmpr;
     document.getElementById("Humidity").textContent=items.Hum;
@@ -101,8 +137,8 @@ function updateMeasurements(){
     
       //let urla = 'https://reqres.in/api/users'
    
-   //let urla = 'http://localhost:3000';
-   let urla = 'https://polite-clowns-tell-109-242-74-79.loca.lt';
+   let urla = 'http://localhost:3000';
+   //let urla = 'https://polite-clowns-tell-109-242-74-79.loca.lt';
 
 
 
@@ -115,52 +151,26 @@ function updateMeasurements(){
    
     
       console.log(dataObj[0]);
-    document.getElementById("dataFromFile1").textContent=dataObj.obj0.CorPass;
+   // document.getElementById("dataFromFile1").textContent=dataObj.obj0.CorPass;
    //console.log(dataFromFile);
     }); 
         //document.getElementById("dataFromFile1").textContent=data);
     
 }
-
-
-
-
-// Delegated Event Listener for current and completed items
-    $('#currentItems, #completedItems').on('click', 'li:not(.modal)', function () {
-        selectedItem = this;
-        $(this).attr('data-selected', '');
-    });
-
-// Event Listeners for Dialogs
-    $('#complete').on('click', function () {
-        items[selectedItem.id].completed = true;
-    });
-    $('#reactivate').on('click', function () {
-        items[selectedItem.id].completed = false;
-    });
-    // Delegated dialog hiding
-    $('.modal').on('click', function (ev) {
-        $(selectedItem).removeAttr('data-selected');
-        selectedItem = null;
-    });
-
-// Data update
- //   $('#complete, #reactivate').on('click', function () {
- //       ws.send(JSON.stringify(items, null, 4));
- //   });
+ 
  $('#switch1').on('click', function () {
     //item.switch[0]=true;
     item.whichAction=9;
     const btnSwitch1=document.getElementById("switch1");
     btnSwitch1.textContent = "WAIT";
-
+    setDateDateToReceive();
    ws.send(JSON.stringify(item));
    this.disabled = true;
       setTimeout(()=>{
-    this.disabled = false;
-    btnSwitch1.textContent = "TAKE VALUES";
-    console.log('Button Activated')}, 4000); 
-    
+        this.disabled = false;
+        btnSwitch1.textContent = "TAKE VALUES";
+        console.log('Button Activated')}, 4000); 
+        
 });
 /*
 $('#switch2').on('click', function () {
@@ -179,221 +189,230 @@ $('#switch2').on('click', function () {
 });
 */
 
+function setDateDateToReceive()
+{
 
+    
+    
+    let date=new Date();
 
+    
+    let dates = date.getDate();
+	let month = date.getMonth() + 1;
+	let year = date.getFullYear();
+	
+    //return year + "-" + month + "-" + dates + " " + hours + ":" + minutes + ":" + seconds;
+    
+    item.whichDateDataToSend[0]=dates;
+     item.whichDateDataToSend[1]=month;
+      item.whichDateDataToSend[2]=year;
+      console.log(item.whichDateDataToSend);
+    
+    
+}
 
- $('#OpenRelay1').on('click', function () {
-item.relay[1]=true;
-item.whichAction=1;
-     console.log("opened");
+ $('.openRelay').on('click', function () {
+     let str=""+this.id;
+     let numRelay=str.charAt(str.length - 1);
+    item.relay[numRelay]=true;
+        console.log(item.relay[numRelay]);
+    
+    item.whichAction=numRelay;
+     console.log("opened Relay "+numRelay);
+     setDateDateToReceive();
     ws.send(JSON.stringify(item));
     disableBtns();
 });
-$('#CloseRelay1').on('click', function () {
-    item.relay[1]=false;
-    item.whichAction=1;
-    console.log("closed");
+
+$('.closeRelay').on('click', function () {
+      let str=""+this.id;
+      let numRelay=str.charAt(str.length - 1);
+    item.relay[numRelay]=false;
+    item.whichAction=numRelay;
+    console.log("closed Relay "+numRelay);
    ws.send(JSON.stringify(item));
        disableBtns();
-});
-
-$('#OpenRelay2').on('click', function () {
-    item.relay[2]=true;
-    item.whichAction=2;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-        disableBtns();         
-});
-$('#CloseRelay2').on('click', function () {
-        item.relay[2]=false;
-        item.whichAction=2;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-              disableBtns();
-});
-
-$('#OpenRelay3').on('click', function () {
-    item.relay[3]=true;
-    item.whichAction=3;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-               disableBtns();
-
-         
-});
-$('#CloseRelay3').on('click', function () {
-        item.relay[3]=false;
-        item.whichAction=3;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-           disableBtns();
-});
-
-$('#OpenRelay4').on('click', function () {
-    item.relay[4]=true;
-    item.whichAction=4;
-         console.log("4opened");
-        ws.send(JSON.stringify(item));
-          disableBtns(); 
-});
-$('#CloseRelay4').on('click', function () {
-        item.relay[4]=false;
-        item.whichAction=4;
-        console.log("4closed");
-       ws.send(JSON.stringify(item));
-         disableBtns();
-});
-
-$('#OpenRelay5').on('click', function () {
-    item.relay[5]=true;
-    item.whichAction=5;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-        disableBtns();
-});
-$('#CloseRelay5').on('click', function () {
-        item.relay[5]=false;
-        item.whichAction=5;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-       disableBtns();
-});
-
-$('#OpenRelay6').on('click', function () {
-    item.relay[6]=true;
-    item.whichAction=6;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-        disableBtns();  
-});
-$('#CloseRelay6').on('click', function () {
-        item.relay[6]=false;
-        item.whichAction=6;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-       disableBtns();  
-        
-});
-
-$('#OpenRelay7').on('click', function () {
-    item.relay[7]=true;
-    item.whichAction=7;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-        disableBtns();
-          
-         
-});
-$('#CloseRelay7').on('click', function () {
-        item.relay[7]=false;
-        item.whichAction=7;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-       disableBtns();
-     
-        
-});
-
-$('#OpenRelay8').on('click', function () {
-    item.relay[8]=true;
-    item.whichAction=8;
-         console.log("opened");
-        ws.send(JSON.stringify(item));
-        disableBtns();
-         
-         
-});
-$('#CloseRelay8').on('click', function () {
-        item.relay[8]=false;
-        item.whichAction=8;
-        console.log("closed");
-       ws.send(JSON.stringify(item));
-       disableBtns();
-           
-        
 });
 function disableBtns()
 {
       const labeSwitch=document.getElementById("SwitchesLabel");
     labeSwitch.textContent = "WAIT";
-    document.getElementById("OpenRelay1").disabled=true;    
-    document.getElementById("OpenRelay2").disabled=true;
-    document.getElementById("CloseRelay1").disabled=true;    
-    document.getElementById("CloseRelay2").disabled=true;
-    document.getElementById("OpenRelay3").disabled=true;    
-    document.getElementById("OpenRelay4").disabled=true;
-    document.getElementById("CloseRelay3").disabled=true;    
-    document.getElementById("CloseRelay4").disabled=true;
-    document.getElementById("OpenRelay5").disabled=true;    
-    document.getElementById("OpenRelay6").disabled=true;
-    document.getElementById("CloseRelay5").disabled=true;    
-    document.getElementById("CloseRelay6").disabled=true;
-    document.getElementById("OpenRelay7").disabled=true;    
-    document.getElementById("OpenRelay8").disabled=true;
-    document.getElementById("CloseRelay7").disabled=true;    
-    document.getElementById("CloseRelay8").disabled=true;
+    document.getElementById("open1").disabled=true;    
+   document.getElementById("close1").disabled=true;  
+    document.getElementById("open2").disabled=true;    
+   document.getElementById("close2").disabled=true;  
+   document.getElementById("open3").disabled=true;    
+   document.getElementById("close3").disabled=true;  
+   document.getElementById("open4").disabled=true;    
+   document.getElementById("close4").disabled=true;  
+   document.getElementById("open5").disabled=true;    
+   document.getElementById("close5").disabled=true;  
+   document.getElementById("open6").disabled=true;    
+   document.getElementById("close6").disabled=true;  
+   document.getElementById("open7").disabled=true;    
+   document.getElementById("close7").disabled=true; 
+   document.getElementById("open8").disabled=true;    
+   document.getElementById("close8").disabled=true;   
     
           setTimeout(()=>{
                 labeSwitch.textContent = "Switches";
-    document.getElementById("OpenRelay1").disabled=false;    
-    document.getElementById("OpenRelay2").disabled=false;
-    document.getElementById("CloseRelay1").disabled=false;    
-    document.getElementById("CloseRelay2").disabled=false;
-    document.getElementById("OpenRelay3").disabled=false;    
-    document.getElementById("OpenRelay4").disabled=false;
-    document.getElementById("CloseRelay3").disabled=false;    
-    document.getElementById("CloseRelay4").disabled=false;
-    document.getElementById("OpenRelay5").disabled=false;    
-    document.getElementById("OpenRelay6").disabled=false;
-    document.getElementById("CloseRelay5").disabled=false;    
-    document.getElementById("CloseRelay6").disabled=false;
-    document.getElementById("OpenRelay7").disabled=false;    
-    document.getElementById("OpenRelay8").disabled=false;
-    document.getElementById("CloseRelay7").disabled=false;    
-    document.getElementById("CloseRelay8").disabled=false;
-    console.log('Button Activated')}, 2500);    
-}
-$('#downloadFile').on('click', function () {
-    if (dataObj===null){
-        const dataFromFileDisplay=document.getElementById("dataFromFile1");
-        dataFromFileDisplay.textContent = "Take Values First!";
-        
+    document.getElementById("open1").disabled=false;    
+   document.getElementById("close1").disabled=false;  
+       document.getElementById("open2").disabled=false;    
+   document.getElementById("close2").disabled=false;  
+   document.getElementById("open3").disabled=false;    
+   document.getElementById("close3").disabled=false;  
+   document.getElementById("open4").disabled=false;    
+   document.getElementById("close4").disabled=false;  
+   document.getElementById("open5").disabled=false;    
+   document.getElementById("close5").disabled=false;  
+   document.getElementById("open6").disabled=false;    
+   document.getElementById("close6").disabled=false;  
+   document.getElementById("open7").disabled=false;    
+   document.getElementById("close7").disabled=false; 
+   document.getElementById("open8").disabled=false;    
+   document.getElementById("close8").disabled=false;  
 
-        this.disabled = true;
-        setTimeout(()=>{
-        this.disabled = false;
-        dataFromFileDisplay.textContent = "No Values";
-        console.log('Button Activated')}, 2000); 
+   }, 2000);    
+}
+
+
+$('#downloadToday').on('click', function () {
+    const dataFromFileDisplay=document.getElementById("dataToday");
+    
+     const buttonToday=document.getElementById("downloadToday");
+          dataFromFileDisplay.textContent = "WAIT!";
+      item.whichAction=9;
+        buttonToday.disabled = true;
+    
+    setDateDateToReceive();
+      ws.send(JSON.stringify(item));
+           setTimeout(()=>{
+               
+            if (item.corPassword===true)
+                takeTodaysData();
+             else buttonToday.disabled = false;       
+   
+        }, 2000); 
+            
+           
          
-    }
-    else
-    {
-        const dataFromFileDisplay=document.getElementById("dataFromFile1");
-        createTable();
-         dataFromFileDisplay.textContent = "";
-    }
+    
+    
 });
 
-function createTable(){
-    var dataset = [];
+function takeTodaysData()
+{
+    const buttonToday=document.getElementById("downloadToday");
+    const dataFromFileDisplay=document.getElementById("dataToday");
+     dataFromFileDisplay.textContent = "WAIT!";
+        buttonToday.disabled = true;
+        setTimeout(()=>{
+            createTable().then(
+                function(value) {
+                    dataFromFileDisplay.textContent = "OK!";
+                     
+                     buttonToday.disabled = false;
+                     const tableHeadEl=document.getElementById("tableHead");
+                     tableHeadEl.innerHTML = ""+item.whichDateDataToSend[0]+"-"+
+                     item.whichDateDataToSend[1]+"-"+item.whichDateDataToSend[2]+" Measurements <br> per Hour (WH)";
+                },
+                function(error) {}
+            );;
+      
+          
+        }, 100); 
+    
+}
+
+
+async function createTable(){
+    const dataFromFileDisplay=document.getElementById("dataToday");
+    var datasetTemp = [];
     
 // javascript
 // take data and put them in table
     let counterForSkip=0;
     let numberOfMeas=Object.values(dataObj).length-1;
+    console.log(numberOfMeas);
     
-   console.log(numberOfMeas);
+    let consum=0;
+    let prevConsum=Object.values(dataObj)[1].msrs[3];;
+    console.log(prevConsum);
+   
+    for (let i=0;i<numberOfMeas;i++)
+                {      
+                    
+                       // let hh=""+h;
+                       // hh="0" + hh.slice(-2);
+                        let str=showDate(Object.values(dataObj)[i].cDt);   
+                         
+                        let numMinute=str.charAt(14);     
+                        let numMinute2=str.charAt(15);
+                        let numMinutes= parseInt(numMinute+numMinute2);
+                      //  let numHourA=str.charAt(11);
+                       // let numHourB=str.charAt(12);
+                         let secsA=str.charAt(17);
+                        let secsB=str.charAt(18);
+                      //  let numHour=parseInt(numHourA+numHourB);
+                        let secs=parseInt(secsA+secsB);
+                       // console.log(numHourA+numHourB+'-'+numMinute+numMinute2+secs); 
+                      // console.log(numMinute);  
+                         
+                                if ((numMinutes===59)&&(secs===50))                                                      
+                                   {  
+                                            console.log(str);
+                                       // consum=Object.values(dataObj)[i].msrs[3];
+                                        datasetTemp.push(Object.values(dataObj)[i]);                              
+                                   }
+                               
+            }
+            console.log(datasetTemp);
+         var dataset = []; 
+         for (let m=0;m<24;m++)
+            {
+                let found=false;
+                 for (let k=0;k<datasetTemp.length;k++)
+                 {
+                     let strTemp=showDate(Object.values(datasetTemp)[k].cDt);
+                      console.log(strTemp);
+                     let numHourAtmp=strTemp.charAt(11);
+                      console.log(numHourAtmp)
+                    let numHourBtmp=strTemp.charAt(12);
+                   console.log(numHourBtmp)
+                    let numHourtmp=parseInt(numHourAtmp+numHourBtmp);
+                    console.log(numHourtmp);
+                         if (numHourtmp===m)
+                             {
+                                 consum=Object.values(datasetTemp)[k].msrs[3];
+                                dataset.push(consum-prevConsum);
+                                prevConsum=consum;
+                                found=true;
+                            }   
+                                                  
+         
+                }
+                if (!found)
+                    dataset.push(null);
+            }
+        
+            
+    
     //let objectName=Object.keys(dataObj)[0];
     
    // console.log(dataObj.objectName);
     //console.log(Object.values(dataObj)[100]);
     
     //console.log(Object.values(dataObj)[numberOfMeas]);
+    
+    
+    
+    /*
     let olderMes=numberOfMeas-600;
     if (olderMes<35)
     olderMes=35;
     
-for (let i=olderMes;i<numberOfMeas;i++)
+for (let i=0;i<numberOfMeas;i++)
 {
     let consum=0;
     let prevConsum=0;
@@ -413,8 +432,8 @@ for (let i=olderMes;i<numberOfMeas;i++)
         counterForSkip=0;
    
 }
-
-var svgWidth = 500, svgHeight = 300, barPadding = 10;
+*/
+var svgWidth = 800, svgHeight = 300, barPadding = 2;
 var barWidth = (svgWidth / dataset.length);
 
 
@@ -453,7 +472,7 @@ var barChart = svg.selectAll("rect")
         return svgHeight -2;
     })
     .attr("x", function(d, i) {
-        return 5+barWidth * i;
+        return barWidth * i;
     })
     .attr("fill", "goldenrod");
     
