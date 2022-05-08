@@ -123,7 +123,7 @@ function updateMeasurements(){
     if (items.dateDoorLastOpened===null||items.doorO===undefined)
         document.getElementById("doorOpened").textContent="-";
    else
-       document.getElementById("doorOpened").textContent=showDate(items.doorO);
+        document.getElementById("doorOpened").textContent=items.doorO;
     document.getElementById("Voltage1").textContent=(items.msrs[0]/10);
     document.getElementById("Current1").textContent=(items.msrs[1]/10);
     document.getElementById("ActivePower1").textContent=items.msrs[2];
