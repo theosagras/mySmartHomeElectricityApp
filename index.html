@@ -10,94 +10,112 @@
         
         <header>
             <h1>My Smart Home Electricity App</h1>
-            <label id="passwordLabel">Enter Password: </label>
-            <input id="passwordnput" type="password"></input>
-
+            <div class="heading">
+                <label id="passwordLabel">Enter Password: </label>
+                <input id="passwordnput" type="password"></input>
+            </div>
         </header>
         
         <main>
         <label id="SwitchesLabel">Switches: </label><br>
-            <button id="OpenRelay1">open-relay #1</button>
-            <button id="CloseRelay1">close-relay #1</button>
-            <br>
-            <button id="OpenRelay2">open-relay #2</button>
-            <button id="CloseRelay2">close-relay #2</button>
-            <br>
-            <button id="OpenRelay3">open-relay #3</button>
-            <button id="CloseRelay3">close-relay #3</button>
-            <br>
-            <button id="OpenRelay4">open-relay #4</button>
-            <button id="CloseRelay4">close-relay #4</button>
-            <br>
-            <button id="OpenRelay5">open-relay #5</button>
-            <button id="CloseRelay5">close-relay #5</button>
-            <br>
-            <button id="OpenRelay6">open-relay #6</button>
-            <button id="CloseRelay6">close-relay #6</button>
-            <br>
-            <button id="OpenRelay7">open-relay #7</button>
-            <button id="CloseRelay7">close-relay #7</button>
-            <br>
-            <button id="OpenRelay8">open-relay #8</button>
-            <button id="CloseRelay8">close-relay #8</button>
-            <br>
-            <div id="Measurement1">
-                <h2><button id="switch1">TAKE VALUES</button></h2>
-                <h2>Measurement 1 </h2>
-                
-                <label> Time: </label><label id="TimeMeasur1"></label><br>
-                <label> Temperature: </label><label id="Temperature"></label><label> C</label><br>
-                <label> Humidity: </label><label id="Humidity"></label><label>%</label><br>
-                <label> Time door opened last time: </label><label id="doorOpened"></label><br>
-                 <label> Voltage: </label><label id="Voltage1"></label><label> Volt</label><br>
-                <label> Current: </label><label id="Current1"></label><label> Amper</label><br>
-                <!--<label> Frequency: </label><label id="Frequency1"></label><label> Hz:</label><br>-->
-                <label> Active Power: </label><label id="ActivePower1"></label><label> Watt</label><br>
-                
-                <!--<label> Reactive Power:</label><label id="ReactivePower1"></label>-->
-                <!--<label> Apparent factor:</label><label id="ApparentFactor1"></label>-->
-                <label> Consumption: </label><label id="ActiveEnergyA1"></label> WH<br>
-                <!--<label> Consumption (wh):</label><label id="ActiveEnergyB1"></label>-->
-                
-                <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyA1"></label>-->
-                 <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyB2"></label>-->
-            <label> Usb Device On: </label><label id="UsbDevice"></label><br>
+        <div class= "grid">
+            <div class flexItem>
+                <button class= "openRelay" id="open1">open-relay #1</button>
+                 <button class="openRelay" id="open2">open-relay #2</button>
+                  <button class="openRelay" id="open3">open-relay #3</button>
+                <button class="openRelay" id="open4">open-relay #4</button>
             </div>
-            <h2>Measurement 2 
-            <!--<button id="switch2">TAKE VALUES</button>-->
-            </h2>
-              <label> Voltage: </label><label id="Voltage2"></label><label> Volt</label><br>
-                <label> Current: </label><label id="Current2"></label><label>A mper</label><br>
-                <!--<label> Frequency: </label><label id="Frequency2"></label><label> Hz:</label><br>-->
-                <label> Active Power: </label><label id="ActivePower2"></label><label> Watt</label><br>
-                
-                <!--<label> Reactive Power:</label><label id="ReactivePower1"></label>-->
-                <!--<label> Apparent factor:</label><label id="ApparentFactor1"></label>-->
-                <label> Consumption: </label><label id="ActiveEnergyA2"></label> WH<br>
-                <!--<label> Consumption (wh):</label><label id="ActiveEnergyB2"></label>-->
-                
-                <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyA2"></label>-->
-               <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyB2"></label>-->
-               
-            
+
+        <div class flexItem>   
+            <button class= "closeRelay" id="close1">close-relay #1</button>
+            <button class="closeRelay" id="close2">close-relay #2</button>
+            <button class="closeRelay" id="close3">close-relay #3</button>
+            <button class="closeRelay" id="close4">close-relay #4</button>
+         </div>   
+         <br>
+        <div class flexItem>
+            <button class= "openRelay" id="open5">open-relay #5</button>
+            <button class="openRelay" id="open6">open-relay #6</button>
+            <button class="openRelay" id="open7">open-relay #7</button>
+            <button class="openRelay" id="open8">open-relay #8</button>
+        </div>
+
+        <div class flexItem>   
+            <button class= "closeRelay" id="close5">close-relay #5</button>
+            <button class="closeRelay" id="close6">close-relay #6</button>
+            <button class="closeRelay" id="close7">close-relay #7</button>
+            <button class="closeRelay" id="close8">close-relay #8</button>
+         </div>   
+        </div>
+            <div>
+            <h2><button id="switch1">TAKE VALUES</button></h2>
             </div>
-             <h2 >DATA from file</h2>
-               
+            <div class="container flex">
                 
-               <button id="downloadFile">Display File</button><br>
-               <label id="dataFromFile1"> No Values </label><br>
-            <pre id="preview-text"></pre>
-            
-            
-             <h2>Last Hour Measurements <br>
-             per 5 minutes (WH)
-             </h2>
-        
-            <svg class="bar-chart"></svg>
-        
-            <script src="https://d3js.org/d3.v4.min.js"></script>
-            
+                <div class="General flexitem">
+                        <h2>General </h2>  
+                        <label> Time: </label><label id="TimeMeasur1"></label><br>
+                        <label> Temperature: </label><label id="Temperature"></label><label> C</label><br>
+                        <label> Humidity: </label><label id="Humidity"></label><label>%</label><br>
+                        <label> Time door opened</label><br>
+                        <label>&nbsp &nbsp last time: </label><label id="doorOpened"></label><br>
+                          <label> Usb Device On: </label><label id="UsbDevice"></label><br>
+                </div>
+                <div class="Measurement1 flexitem">
+                   
+                    <h2>Measurement1 </h2>                    
+                        
+                         <label> Voltage: </label><label id="Voltage1"></label><label> Volt</label><br>
+                        <label> Current: </label><label id="Current1"></label><label> Amper</label><br>
+                        <!--<label> Frequency: </label><label id="Frequency1"></label><label> Hz:</label><br>-->
+                        <label> Active Power: </label><label id="ActivePower1"></label><label> Watt</label><br>
+                        
+                        <!--<label> Reactive Power:</label><label id="ReactivePower1"></label>-->
+                        <!--<label> Apparent factor:</label><label id="ApparentFactor1"></label>-->
+                        <label> Consumption: </label><label id="ActiveEnergyA1"></label> WH<br>
+                        <!--<label> Consumption (wh):</label><label id="ActiveEnergyB1"></label>-->
+                        
+                        <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyA1"></label>-->
+                     <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyB2"></label>-->
+              
+                </div>
+               <div class="Measurement2 flexitem">
+                    <h2>Measurement2 
+                    <!--<button id="switch2">TAKE VALUES</button>-->
+                    </h2>
+                      <label> Voltage: </label><label id="Voltage2"></label><label> Volt</label><br>
+                        <label> Current: </label><label id="Current2"></label><label>A mper</label><br>
+                        <!--<label> Frequency: </label><label id="Frequency2"></label><label> Hz:</label><br>-->
+                        <label> Active Power: </label><label id="ActivePower2"></label><label> Watt</label><br>
+                        
+                        <!--<label> Reactive Power:</label><label id="ReactivePower1"></label>-->
+                        <!--<label> Apparent factor:</label><label id="ApparentFactor1"></label>-->
+                        <label> Consumption: </label><label id="ActiveEnergyA2"></label> WH<br>
+                        <!--<label> Consumption (wh):</label><label id="ActiveEnergyB2"></label>-->
+                        
+                        <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyA2"></label>-->
+                       <!-- <label> Reactive Consumption (wh):</label><label id="ReActiveEnergyB2"></label>-->
+                  
+                
+                </div>
             </div>
+            
+            <div>
+                 <h2 >DATA from file</h2>
+                   <button id="downloadToday">Display Today's DATA</button><br>
+                 <label id="dataToday"> No Values </label><br>
+                  
+                <pre id="preview-text"></pre>                
+                
+                 <h2 id='tableHead'>One Day Measurements <br>
+                 per Hour (WH)
+                 </h2>
+            
+                <svg class="bar-chart"></svg>
+            
+                <script src="https://d3js.org/d3.v4.min.js"></script>
+            </div>  
+              
 
 
 
