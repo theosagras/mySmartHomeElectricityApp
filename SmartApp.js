@@ -138,7 +138,7 @@ function updateMeasurements(){
       //let urla = 'https://reqres.in/api/users'
    
   // let urla = 'http://localhost:3000';
-   let urla = 'https://hip-jobs-film-109-242-73-166.loca.lt';
+   let urla = 'https://smart-items-lie-109-242-73-166.loca.lt';
 
 
 
