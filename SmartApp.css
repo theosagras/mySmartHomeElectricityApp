@@ -27,10 +27,12 @@ picture {
 }
 .closeRelay{
    color: red;
+
 }
 
 .flex {
     display: flex;
+
     //align-items: center;
     justify-content: center;
     gap: 1rem;
@@ -38,7 +40,12 @@ picture {
 }
 .flexitem{
  padding: .5em;
-   border: solid white;
+  
+}
+.Measurement1
+{
+  text-align: center;
+ border: solid white;
 }
 .flex2{
     display: flex;
@@ -52,6 +59,8 @@ width: 600px;
 margin: auto;
 border-bottom: solid white;
 }
+
+
 h2 {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -68,13 +77,21 @@ body {
     color: white;
     text-align: center;
 }
+.General {
+    color: goldenrod;
+      text-align: center;
+}
 
 h1 {
     color: goldenrod;
 }
+span{
+font-size: 50%;
+}
 .heading{
     padding: 10px;
 }
+
 #passwordnput{
     padding-top: 5px;
     text-align: center;
@@ -91,7 +108,7 @@ each other when they are rendered out vertically */
 button {
     color: #016f32;
     width: 150px;
-    background: goldenrod;
+    background: white;
     padding-top: 5px;
     padding-bottom: 5px;
     font-weight: bold;
@@ -99,11 +116,42 @@ button {
     border-radius: 2px;
     margin-bottom: 2px;
     margin-top: 2px;
+       cursor:pointer;
 }
-.bar-chart {
+.bar1chart {
     background-color: #C7D9D9;
     }
     
 .bar {
      fill: #115D8C;
      }
+.bar2chart {
+    background-color: #C7D9D9;
+    }
+    
+.bar2 {
+     fill: #115D8C;
+     }
+.bar3chart {
+    background-color: #C7D9D9;
+    }
+    
+.bar3 {
+     fill: #115D8C;
+     }
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: #090;
+  color: #fff;
+  text-align: right;
+  
+  
+}
+#btnRefresh{
+     height: 40px;
+}
+
+

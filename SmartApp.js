@@ -1,18 +1,20 @@
 $(function () {
     'use strict';
 
+
 // Items object structure
 
 //var items = [], selectedItem = null;
 var dataObj=null;//save json objects with measurements received file port3000
 var dataObjToday=null;//save json objects with measurements received file port3000
 var upOrDownHorTitle=17;//gia ektiposi ston pinaka oi orizintioi titloi na einai enallaks pano kato
+var dataReceivedWebSocket;
 var item= {
     "corPassword":false,
     "password": "",//password
     "whichAction": 0, //1-8 relay,   9 on measurement1,    10 on measurement2 
     "relay": [false,false,false,false,false,false,false,false,false],
-     whichDateDataToSend:[0,0,0]
+     "whichDateDataToSend":[0,0,0]
             
 }
 var items = {
@@ -25,10 +27,20 @@ var items = {
     "UsbOn": false
 }
 
-function showDate(datesa){
-    let date=new Date(datesa);
+var waitAfterSwitchChange=false;
+const startbtn=document.getElementById('startbtn');
+var appIsRunning=false;//deixnei an exei patithei startbutton
+const btnGetValues=document.getElementById("getvalues");
+const passwordLabel=document.getElementById("passwordLabel");
+const pasDiv=document.getElementById('passwordDiv');
+const heading=document.getElementById('heading');
+const selectedDayConsBtn=document.getElementById("selectedDayConsBtn");
+const dayPicker=document.getElementById("dayPicker")
+var datePicked;
 
-    if (datesa===null){
+function showDate(dateLong){
+    let date=new Date(dateLong);
+    if (dateLong===null){
         return "---"
     }
     else
@@ -36,13 +48,25 @@ function showDate(datesa){
     let dates = ("0" + date.getDate()).slice(-2);
 	let month = ("0" + (date.getMonth() + 1)).slice(-2);
 	let year = date.getFullYear();
-	let hours = ("0" + (date.getHours())).slice(-2)
-	let minutes = ("0" + date.getMinutes()).slice(-2)
-	let seconds = ("0" + (date.getSeconds())).slice(-2)
-    return year + "-" + month + "-" + dates + " " + hours + ":" + minutes + ":" + seconds;
+	let hours = ("0" + (date.getHours())).slice(-2);
+	let minutes = ("0" + date.getMinutes()).slice(-2);
+	let seconds = ("0" + (date.getSeconds())).slice(-2);
+    return dates + "-" +month + "-" + year+" "+hours + ":" + minutes + ":" + seconds;
     }
     
  return ""
+}
+function setDateDateToReceive(dateSelected){
+    let date=new Date(dateSelected);
+    
+    let dates = date.getDate();
+	let month = date.getMonth()+1;
+	let year = date.getFullYear();
+    item.whichDateDataToSend[0]=dates;
+     item.whichDateDataToSend[1]=month;
+      item.whichDateDataToSend[2]=year;
+      console.log(item.whichDateDataToSend);    
+    
 }
 
 document.getElementById('passwordnput').addEventListener('change', function(evt) {
@@ -52,36 +76,80 @@ document.getElementById('passwordnput').addEventListener('change', function(evt)
 }, false);
 
 
+function startPressed() {
+     item.whichAction=0;//code 0 to check password and start
+     ws.send(JSON.stringify(item));  
+     
+};
+
+$('#startbtn').on('click', function () {
+    startPressed();
+});
+
+
+
+
+
+
+
+
 
 // Communication functions
     //var ws = new WebSocket('wss://9f00-188-73-233-157.eu.ngrok.io');
 	    
-	var ws = new WebSocket('wss://thick-pens-crash-188-73-233-99.loca.lt');
-    //var ws = new WebSocket('ws://localhost:8090');
+	var ws = new WebSocket('wss://wide-pigs-brush-45-139-212-221.loca.lt');
+   // var ws = new WebSocket('ws://localhost:8090');
     ws.addEventListener('open', function (ev) {
         ws.addEventListener('message', function (msg) {
-            items = JSON.parse(msg.data);
-            if (items===null)
+            dataReceivedWebSocket = JSON.parse(msg.data);
+            
+            if (dataReceivedWebSocket.psw===false)
                  item.corPassword=false;
             else
                 item.corPassword=true;
-            const dataFromFileDisplay=document.getElementById("dataToday");
-           if (item.corPassword===true)
-           {
-                dataFromFileDisplay.textContent = "";
-            document.getElementById("passwordLabel").style.color="white";
-            document.getElementById("passwordLabel").textContent="Enter Password: ";
-           updateMeasurements();
-            refreshRelayButtons();
+                
            
-           
-           }
-           else
-           {
-          dataFromFileDisplay.textContent = "Wrong Password!";
-           document.getElementById("passwordLabel").textContent="Wrong Password! Enter Password: ";
-           document.getElementById("passwordLabel").style.color="darkred";
-           }
+            if (item.corPassword===true){
+                
+                document.getElementById('main').style.visibility = "visible";
+                appIsRunning=true;
+              
+                if (startbtn!=null)
+                {                
+                    startbtn.remove();                               
+                    
+                }
+                if (  heading!=null)   heading.remove();   
+                if (pasDiv!=null)  pasDiv.remove();
+                
+                if (passwordLabel!=null)
+                {
+                    passwordLabel.style.color="white";
+                    passwordLabel.textContent="Enter Password: ";
+                }
+                if (dataReceivedWebSocket.whichaction===9)
+                {
+                   // getValuesFromServerFile();
+                }
+                else
+                {
+                    
+                    updateMeasurements();
+                    refreshRelayButtons();
+                }
+                
+            }
+            else
+            {
+                
+                
+                if (passwordLabel!=null)
+                {
+                    passwordLabel.textContent="Wrong Password! Enter Password: ";
+                    passwordLabel.style.color="darkred";
+                }
+                
+            }
            // $('.modal').siblings().remove();
           //  $.each(items, function (index, item) {
           //      var ulId = ( item.completed ) ? '#completedItems' : '#currentItems';
@@ -98,92 +166,82 @@ function refreshRelayButtons()
         let str2="close"+i;
         const switElClose= document.getElementById(str2)
 
-        if (item.relay[i]==true)
+        if (dataReceivedWebSocket.relayStatesOnServer[i]==true)
             {
-                switElOpen.textContent='Relay#'+ i+ ' is ON';
-                switElClose.textContent='close-Relay#'+ i;
+                switElOpen.textContent='is ON';
+                switElClose.textContent='turn OFF';
                 
                // switElOpen.style.backgroundColor  = "black";
                // switElClose.style.backgroundColor=  "goldenrod";
             }
         else
             {
-                 switElOpen.textContent='open-Relay#'+ i;
+                 switElOpen.textContent='turn ON';
                // switElOpen.style.backgroundColor=  "goldenrod";
               // switElClose.style.backgroundColor  = "black";
-               switElClose.textContent='Relay#'+ i+ ' is OFF';
+               switElClose.textContent='is OFF';
             }
     }
 }
 function updateMeasurements(){
-   
-      document.getElementById("TimeMeasur1").textContent=items.cDt;
-    document.getElementById("Temperature").textContent=items.Tmpr;
-    document.getElementById("Humidity").textContent=items.Hum;
-    if (items.dateDoorLastOpened===null||items.doorO===undefined)
+    document.getElementById("TimeMeasur1").textContent=dataReceivedWebSocket.cDt;
+    document.getElementById("Temperature").textContent=dataReceivedWebSocket.Tmpr;
+    document.getElementById("Humidity").textContent=dataReceivedWebSocket.Hum;
+    if (dataReceivedWebSocket.dateDoorLastOpened===null||dataReceivedWebSocket.doorO===undefined)
         document.getElementById("doorOpened").textContent="-";
-   else
-       document.getElementById("doorOpened").textContent=items.doorO;
-    document.getElementById("Voltage1").textContent=(items.msrs[0]/10);
-    document.getElementById("Current1").textContent=(items.msrs[1]/10);
-    document.getElementById("ActivePower1").textContent=items.msrs[2];
+    else
+       document.getElementById("doorOpened").textContent=dataReceivedWebSocket.doorO;
+    document.getElementById("Voltage1").textContent=(dataReceivedWebSocket.msrs1[0]/10);
+    document.getElementById("Current1").textContent=(dataReceivedWebSocket.msrs1[1]/10);
+    document.getElementById("ActivePower1").textContent=dataReceivedWebSocket.msrs1[2];
     //document.getElementById("ReactivePower1").textContent=items.msrs[4];
     //document.getElementById("ApparentFactor1").textContent=items.msrs[5];
-    document.getElementById("ActiveEnergyA1").textContent=items.msrs[3];
+    document.getElementById("ActiveEnergyA1").textContent=dataReceivedWebSocket.msrs1[3];
+    
+       document.getElementById("Voltage2").textContent=(dataReceivedWebSocket.msrs2[0]/10);
+    document.getElementById("Current2").textContent=(dataReceivedWebSocket.msrs2[1]/10);
+    document.getElementById("ActivePower2").textContent=dataReceivedWebSocket.msrs2[2];
+    //document.getElementById("ReactivePower1").textContent=items.msrs[4];
+    //document.getElementById("ApparentFactor1").textContent=items.msrs[5];
+    document.getElementById("ActiveEnergyA2").textContent=dataReceivedWebSocket.msrs2[3];
    // document.getElementById("ActiveEnergyB1").textContent=items.msrs[7];
    //  document.getElementById("ReActiveEnergyA1").textContent=items.msrs[10];
    // document.getElementById("ReActiveEnergyB1").textContent=items.msrs[9];
-     document.getElementById("UsbDevice").textContent=items.UsbOn;
-    
-      //let urla = 'https://reqres.in/api/users'
-   
-  // let urla = 'http://localhost:3000';
-   let urla = 'https://little-lines-argue-109-242-73-166.loca.lt';
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  fetch(urla).then(response => response.json())
-    .then(data =>{;{
-    dataObj=JSON.parse(data);
-    console.log(dataObj);
-    }
-   
-    
-   // document.getElementById("dataFromFile1").textContent=dataObj.obj0.CorPass;
-   //console.log(dataFromFile);
-    }); 
-        //document.getElementById("dataFromFile1").textContent=data);
+     document.getElementById("UsbDevice").textContent=dataReceivedWebSocket.UsbOn;
     
 }
+
+
+
 setInterval(()=>{
-               const btnSwitch1=document.getElementById("switch1");
-           btnSwitch1.textContent = "TAKING VALUES";
-             btnSwitch1.disabled = true;
-             takeData();
-              setTimeout(()=>{
-                this.disabled = false;
-                btnSwitch1.textContent = "TAKE VALUES";
-                console.log('Button Activated')}, 2200);    
+        if (appIsRunning===true){//app is running
+            {
+                btnGetValues.textContent = "GETTING VALUES";
+                btnGetValues.disabled = true;
+                takeData();
+                setTimeout(()=>{
+                    this.disabled = false;
+                    btnGetValues.textContent = "Get Values";}, 2200);
+                }  
+            }
    
         }, 60000); 
  
- $('#switch1').on('click', function () {
-    takeData();
-        
+ $('#getvalues').on('click', function () {
+    takeData();        
 });
+
 function takeData()
 {
-    item.whichAction=9;
-    const btnSwitch1=document.getElementById("switch1");
-    btnSwitch1.textContent = "WAIT";
-    setDateDateToReceive();
-   ws.send(JSON.stringify(item));
-   btnSwitch1.disabled = true;
-      setTimeout(()=>{
-        btnSwitch1.disabled = false;
-        btnSwitch1.textContent = "TAKE VALUES";
-        console.log('Button Activated')}, 4000); 
+        item.whichAction=0;
+        btnGetValues.textContent = "WAIT";
+        //setDateDateToReceive();
+        ws.send(JSON.stringify(item));
+        btnGetValues.disabled = true;
+        setTimeout(()=>{
+            btnGetValues.disabled = false;
+            btnGetValues.textContent = "Get Values";
+            }, 4000); 
 }
 
 /*
@@ -203,272 +261,288 @@ $('#switch2').on('click', function () {
 });
 */
 
-function setDateDateToReceive()
-{
 
-    
-    
-    let date=new Date();
-
-    
-    let dates = date.getDate();
-	let month = date.getMonth() + 1;
-	let year = date.getFullYear();
-	
-    //return year + "-" + month + "-" + dates + " " + hours + ":" + minutes + ":" + seconds;
-    
-    item.whichDateDataToSend[0]=dates;
-     item.whichDateDataToSend[1]=month;
-      item.whichDateDataToSend[2]=year;
-      console.log(item.whichDateDataToSend);
-    
-    
-}
 
  $('.openRelay').on('click', function () {
-     let str=""+this.id;
-     let numRelay=str.charAt(str.length - 1);
-    item.relay[numRelay]=true;
-        console.log(item.relay[numRelay]);
+     if (waitAfterSwitchChange===false)
+     {
+        const labelSwitch=document.getElementById("SwitchesLabel");
+        labelSwitch.textContent = "WAIT";
+        waitAfterSwitchChange=true;
+        let str=""+this.id;
+        let numRelay=str.charAt(str.length - 1);
+        item.relay[numRelay]=true;
+        item.whichAction=numRelay;        
+        //setDateDateToReceive();
+        ws.send(JSON.stringify(item));
+        setTimeout(()=>{
+               waitAfterSwitchChange=false;
+               labelSwitch.textContent = "Switches:";
+        }, 1500); 
+    }
     
-    item.whichAction=numRelay;
-     console.log("opened Relay "+numRelay);
-     setDateDateToReceive();
-    ws.send(JSON.stringify(item));
-    disableBtns();
 });
 
 $('.closeRelay').on('click', function () {
-      let str=""+this.id;
-      let numRelay=str.charAt(str.length - 1);
-    item.relay[numRelay]=false;
-    item.whichAction=numRelay;
-    console.log("closed Relay "+numRelay);
-   ws.send(JSON.stringify(item));
-       disableBtns();
+     if (waitAfterSwitchChange===false)
+     {
+        const labelSwitch=document.getElementById("SwitchesLabel");
+        labelSwitch.textContent = "WAIT";
+         waitAfterSwitchChange=true;
+         let str=""+this.id;
+         let numRelay=str.charAt(str.length - 1);
+         item.relay[numRelay]=false;
+         item.whichAction=numRelay;
+         ws.send(JSON.stringify(item));
+         setTimeout(()=>{
+               waitAfterSwitchChange=false;
+               labelSwitch.textContent = "Switches:";
+        }, 1500); 
+     }
 });
-function disableBtns()
-{
-      const labeSwitch=document.getElementById("SwitchesLabel");
-    labeSwitch.textContent = "WAIT";
-    document.getElementById("open1").disabled=true;    
-   document.getElementById("close1").disabled=true;  
-    document.getElementById("open2").disabled=true;    
-   document.getElementById("close2").disabled=true;  
-   document.getElementById("open3").disabled=true;    
-   document.getElementById("close3").disabled=true;  
-   document.getElementById("open4").disabled=true;    
-   document.getElementById("close4").disabled=true;  
-   document.getElementById("open5").disabled=true;    
-   document.getElementById("close5").disabled=true;  
-   document.getElementById("open6").disabled=true;    
-   document.getElementById("close6").disabled=true;  
-   document.getElementById("open7").disabled=true;    
-   document.getElementById("close7").disabled=true; 
-   document.getElementById("open8").disabled=true;    
-   document.getElementById("close8").disabled=true;   
-    
-          setTimeout(()=>{
-                labeSwitch.textContent = "Switches";
-    document.getElementById("open1").disabled=false;    
-   document.getElementById("close1").disabled=false;  
-       document.getElementById("open2").disabled=false;    
-   document.getElementById("close2").disabled=false;  
-   document.getElementById("open3").disabled=false;    
-   document.getElementById("close3").disabled=false;  
-   document.getElementById("open4").disabled=false;    
-   document.getElementById("close4").disabled=false;  
-   document.getElementById("open5").disabled=false;    
-   document.getElementById("close5").disabled=false;  
-   document.getElementById("open6").disabled=false;    
-   document.getElementById("close6").disabled=false;  
-   document.getElementById("open7").disabled=false;    
-   document.getElementById("close7").disabled=false; 
-   document.getElementById("open8").disabled=false;    
-   document.getElementById("close8").disabled=false;  
 
-   }, 2000);    
+
+
+$('#selectedDayConsBtn').on('click', function () {
+    resetTables();
+    selectedDayConsBtn.textContent = "WAIT!";
+    
+   
+    if (dayPicker.value==="")
+    {
+   
+        selectedDayConsBtn.textContent = "No date selected!";
+         setTimeout(()=>{               
+           
+             selectedDayConsBtn.disabled = false;       
+             selectedDayConsBtn.textContent = "Display Day's consumption"; 
+        }, 2000); 
+    }
+    else
+    {
+         datePicked=showDate(dayPicker.value)
+         console.log(datePicked);
+         
+         
+         
+        selectedDayConsBtn.disabled = true;
+        setDateDateToReceive(dayPicker.value);
+        getValuesFromServerFile();
+        
+       
+        
+        item.whichAction=9;//code 9 to check password and get one day consumption
+        dataObj=null;
+        ws.send(JSON.stringify(item)); 
+        var intervalID;
+         setTimeout(()=>{               
+            if (dataReceivedWebSocket.foundDataForThisDate===false)
+                {
+                    selectedDayConsBtn.textContent = "No data for this date"; 
+                }
+            else 
+                {
+                    var counter=0;
+                    const intervalGet = setInterval(function() {
+                        console.log(dataObj);
+                        counter++;
+                        if (dataObj!=null)
+                        {
+                            clearInterval(intervalGet); //
+                            getDaysData();
+                        }
+                      
+                        if (counter===5)
+                            {
+                                clearInterval(intervalGet); //
+                                selectedDayConsBtn.textContent = "Error Getting Data, try Again!"; 
+                            }
+                      }, 2000);
+                     
+                        
+                }
+        }, 1000);  
+       
+        setTimeout(()=>{               
+           
+             selectedDayConsBtn.disabled = false;       
+             selectedDayConsBtn.textContent = "Display Day's consumption"; 
+        }, 5000); 
+     
+}
+        
+    
+});
+
+function getValuesFromServerFile()
+{
+       //let urla = 'https://reqres.in/api/users'
+
+   
+   let urla = 'https://pretty-dots-tell-45-139-212-221.loca.lt';
+
+    //let urla = 'http://localhost:3000';
+    fetch(urla).then(response => response.json())
+    .then(data =>{;{
+        
+        dataObj=JSON.parse(data);
+        console.log("newDataReceived");
+    }
+   
+    
+   // document.getElementById("dataFromFile1").textContent=dataObj.obj0.CorPass;
+   //console.log(dataFromFile);
+    }); 
+    
+        //document.getElementById("dataFromFile1").textContent=data);
+    
+    
+    
+    
 }
 
-
-$('#downloadToday').on('click', function () {
-    const dataFromFileDisplay=document.getElementById("dataToday");
-    
-     const buttonToday=document.getElementById("downloadToday");
-          dataFromFileDisplay.textContent = "WAIT!";
-     
-        buttonToday.disabled = true;
-        if (dataObj===null)
-        {
-           dataFromFileDisplay.textContent = "Take Values first!"; 
-        }
-        else 
-        {
-             if (item.corPassword===true)
-                takeTodaysData();
-                else
-                dataFromFileDisplay.textContent = "Wrong Password!"; 
-                
-        }
-        setTimeout(()=>{
-               
-           
-             buttonToday.disabled = false;       
-   
-        }, 2000); 
-});
-
-function takeTodaysData()
+function getDaysData()
 {
-    const buttonToday=document.getElementById("downloadToday");
-    const dataFromFileDisplay=document.getElementById("dataToday");
-     dataFromFileDisplay.textContent = "WAIT!";
-        buttonToday.disabled = true;
-        setTimeout(()=>{
-            createTable().then(
+    selectedDayConsBtn.textContent = "WAIT!";
+    selectedDayConsBtn.disabled = true;
+    setTimeout(()=>{
+        createTables().then(
                 function(value) {
-                    dataFromFileDisplay.textContent = "OK!";
+                    selectedDayConsBtn.textContent = "Display Day's consumption";
                      
-                     buttonToday.disabled = false;
+                     selectedDayConsBtn.disabled = false;
                      const tableHeadEl=document.getElementById("tableHead");
                      tableHeadEl.innerHTML = ""+item.whichDateDataToSend[0]+"-"+
-                     item.whichDateDataToSend[1]+"-"+item.whichDateDataToSend[2]+" Measurements <br> per Hour (WH)";
+                     item.whichDateDataToSend[1]+"-"+item.whichDateDataToSend[2]+" Consumption <br> per Hour (WH)";
+                     const table2HeadEl=document.getElementById("table2Head");
+                     table2HeadEl.innerHTML = ""+item.whichDateDataToSend[0]+"-"+
+                     item.whichDateDataToSend[1]+"-"+item.whichDateDataToSend[2]+" Consumption of living room<br>devices per Hour (WH)";
+                    const table3HeadEl=document.getElementById("table3Head");
+                     table3HeadEl.innerHTML = ""+item.whichDateDataToSend[0]+"-"+
+                     item.whichDateDataToSend[1]+"-"+item.whichDateDataToSend[2]+" Temperatures <br> per Hour (C)";
                 },
                 function(error) {}
             );;
       
           
-        }, 100); 
-    
+    }, 100); 
 }
-
-
-async function createTable(){
-    const dataFromFileDisplay=document.getElementById("dataToday");
-    var datasetTemp = [];
+var datasetCons;
+var datasetConsLivingRoom;
+var datasetJustCDTS;
     
+var datasetTemperature;
+var daySaveEuros;
+var totalTimeUsbOn;
+
+//table day consumptions
+async function createTables(){
+    var datasetTemp = []; 
+   
+    datasetJustCDTS=[];
+    totalTimeUsbOn=0;
 // javascript
 // take data and put them in table
-    let counterForSkip=0;
-    let numberOfMeas=Object.values(dataObj).length-1;
-    console.log(numberOfMeas);
+    let numberOfMeas=Object.keys(dataObj).length-1;
+    console.log("number of measurements"+ numberOfMeas);
     
     let consum=0;
-    let prevConsum=Object.values(dataObj)[1].msrs[3];
-   
-    console.log(prevConsum);
-   
-    for (let i=0;i<numberOfMeas;i++)
-                {      
-                    
-                       // let hh=""+h;
-                       // hh="0" + hh.slice(-2);
-                        let str=showDate(Object.values(dataObj)[i].cDt);   
-                         
-                        let numMinute=str.charAt(14);     
-                        let numMinute2=str.charAt(15);
-                        let numMinutes= parseInt(numMinute+numMinute2);
-                      //  let numHourA=str.charAt(11);
-                       // let numHourB=str.charAt(12);
-                         let secsA=str.charAt(17);
-                        let secsB=str.charAt(18);
-                      //  let numHour=parseInt(numHourA+numHourB);
-                        let secs=parseInt(secsA+secsB);
-                       // console.log(numHourA+numHourB+'-'+numMinute+numMinute2+secs); 
-                      // console.log(numMinute);  
-                         
-                                if ((numMinutes===59)&&(secs===50))                                                      
-                                   {  
-                                            console.log(str);
-                                       // consum=Object.values(dataObj)[i].msrs[3];
-                                        datasetTemp.push(Object.values(dataObj)[i]);                              
-                                   }
-                               
-            }
-            console.log(datasetTemp);
-         var dataset = []; 
-         for (let m=0;m<24;m++)
-            {
-                let found=false;
-                 for (let k=0;k<datasetTemp.length;k++)
-                 {
-                     let strTemp=showDate(Object.values(datasetTemp)[k].cDt);
-                  
-                     let numHourAtmp=strTemp.charAt(11);
-                     
-                    let numHourBtmp=strTemp.charAt(12);
-                  
-                    let numHourtmp=parseInt(numHourAtmp+numHourBtmp);
-                    
-                         if (numHourtmp===m)
-                             {
-                                 consum=Object.values(datasetTemp)[k].msrs[3];
-                                dataset.push(consum-prevConsum);
-                                prevConsum=consum;
-                                found=true;
-                                continue;
-                            }   
-                                                  
-         
-                }
-                if (!found)
+    let consumLivingRoom=0;
+    let initConsum=Object.values(dataObj)[1].msrs2[3];
+    let prevConsumLivingRoom=Object.values(dataObj)[1].msrs1[3];
+    let prevConsum=initConsum;
+    let dayConsum=0;
+    let oneMeter=null;
+    let oneMeterObjName=null;
+    for (let i=0;i<numberOfMeas;i++)//mazi consumption and Temperature
+            {    
+                oneMeter= Object.values(dataObj)[i]; 
+                oneMeterObjName=Object.keys(dataObj)[i];
+                if (oneMeter.UsbOn===true)
                 {
-                    dataset.push(null);
-                    continue;
+                   totalTimeUsbOn+=10; 
                 }
+                    let strDate=oneMeterObjName.substring(3, 22)
+                    let strTime=oneMeterObjName.substring(17, 22)
+                    // console.log(strTime);
+                   
+                                if (strTime=='59:50')                                                      
+                                   {  
+                                        console.log(strDate);
+                                        datasetTemp.push(oneMeter);    
+                                        datasetJustCDTS.push(oneMeterObjName.substring(14, 16));  
+                               }
             }
         
-            
+    //console.log(datasetTemp);
     
-    //let objectName=Object.keys(dataObj)[0];
-    
-   // console.log(dataObj.objectName);
-    //console.log(Object.values(dataObj)[100]);
-    
-    //console.log(Object.values(dataObj)[numberOfMeas]);
-    
-    
-    
-    /*
-    let olderMes=numberOfMeas-600;
-    if (olderMes<35)
-    olderMes=35;
-    
-for (let i=0;i<numberOfMeas;i++)
-{
-    let consum=0;
-    let prevConsum=0;
-    if (counterForSkip==0){
-         prevConsum=Object.values(dataObj)[i-30].msrs[3];
-        consum=Object.values(dataObj)[i].msrs[3];
-        if ((consum-prevConsum)>0)
-            dataset.push(consum-prevConsum);
-         
-         console.log("consum"+consum);
-          console.log("prevConsum"+prevConsum);
-           console.log("");
-    
+                
+    datasetCons = []; 
+  
+    datasetTemperature = [];
+    datasetConsLivingRoom = [];
+  
+    for (let m=0;m<24;m++)
+    {
+        let found=false;
+        for (let k=0;k<datasetTemp.length;k++)
+        {
+            let strHour=Object.keys(datasetJustCDTS)[k];
+            let numHourtmp=parseInt(strHour);
+            if (numHourtmp===m)
+            {
+                consum=Object.values(datasetTemp)[k].msrs2[3];
+                dayConsum=consum-initConsum;
+                consumLivingRoom=Object.values(datasetTemp)[k].msrs1[3];
+                datasetTemperature.push(Object.values(datasetTemp)[k].Tmpr.substring(0, 2));
+                datasetCons.push(consum-prevConsum);
+                prevConsum=consum;
+                datasetConsLivingRoom.push(prevConsumLivingRoom-consumLivingRoom);
+                prevConsumLivingRoom=consumLivingRoom;
+                found=true;
+                continue;
+            }                                                             
+                 
+        }
+        if (!found)
+        {
+            datasetCons.push(null);
+            datasetTemperature.push(null);
+            continue;
+        }
     }
-    counterForSkip++;
-    if (counterForSkip==30)//meas per 5 minutes
-        counterForSkip=0;
-   
-}
-*/
+            paintChartBar1();//Totalconsumption
+            paintChartBar2();//LivingRoomConsumption
+            paintChartBar3();//temperature
+            dayConsum=dayConsum/1000;
+            daySaveEuros=dayConsum*0.20
+            const table1AboveEl=document.getElementById("table1Above");
+                     table1AboveEl.innerHTML = "You saved "+dayConsum.toFixed(2)+" KWH * 0.20euro= "+ daySaveEuros.toFixed(2)+" euro by Solar Power (0.15euro/KWH)";
+              totalTimeUsbOn=totalTimeUsbOn/60;
+              const timeUsbOnEl=document.getElementById("timeUsbOn");
+                     timeUsbOnEl.innerHTML = "Your computer was on for "+totalTimeUsbOn.toFixed(2)+" minutes";
+    
+              
+    }
+
+
+
+
+function paintChartBar1(){//consumptions
 var svgWidth = 600, svgHeight = 300, barPadding = 3;
-var barWidth = (svgWidth / dataset.length);
+var barWidth = (svgWidth / datasetCons.length);
 
 
-var svg = d3.select('svg')
+var svg = d3.select(".bar1chart")
     .attr("width", svgWidth)
     .attr("height", svgHeight);
     
 var yScale = d3.scaleLinear()
-    .domain([0, d3.max(dataset)])
+    .domain([0, d3.max(datasetCons)])
     .range([0, svgHeight]);
         
-var barChart = svg.selectAll("rect")
-    .data(dataset)
+var bar2Chart = svg.selectAll("rect")
+    .data(datasetCons)
     .enter()
     .append("rect")
     .attr("y", function(d) {
@@ -484,7 +558,7 @@ var barChart = svg.selectAll("rect")
     });
     
     var text = svg.selectAll("text")
-    .data(dataset)
+    .data(datasetCons)
     .enter()
     .append("text")
     .text(function(d) {
@@ -501,11 +575,128 @@ var barChart = svg.selectAll("rect")
         return barWidth * i;
     })
     .attr("fill", "goldenrod");
-    
-    
-    
-    
-    
+
 }
+function paintChartBar2(){//consumptions of Living Room
+var svgWidth = 600, svgHeight = 300, barPadding = 3;
+var barWidth = (svgWidth / datasetConsLivingRoom.length);
+
+
+var svg = d3.select(".bar2chart")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
+    
+var yScale = d3.scaleLinear()
+    .domain([0, d3.max(datasetConsLivingRoom)])
+    .range([0, svgHeight]);
+        
+var bar2Chart = svg.selectAll("rect")
+    .data(datasetCons)
+    .enter()
+    .append("rect")
+    .attr("y", function(d) {
+         return svgHeight - yScale(d) 
+    })
+    .attr("height", function(d) { 
+        return yScale(d); 
+    })
+    .attr("width", barWidth - barPadding)
+    .attr("transform", function (d, i) {
+        var translate = [barWidth * i, 0]; 
+        return "translate("+ translate +")";
+    });
+    
+    var text = svg.selectAll("text")
+    .data(datasetConsLivingRoom)
+    .enter()
+    .append("text")
+    .text(function(d) {
+        return d;
+    })
+    .attr("y", function(d, i) {
+       
+        if (upOrDownHorTitle===17)
+            upOrDownHorTitle=0;
+        else upOrDownHorTitle=17;
+         return svgHeight -2-upOrDownHorTitle;
+    })
+    .attr("x", function(d, i) {
+        return barWidth * i;
+    })
+    .attr("fill", "goldenrod");
+
+}
+                
+
+function paintChartBar3(){//temperatures
+var svgWidth = 600, svgHeight = 300, barPadding = 3;
+var barWidth = (svgWidth / datasetTemperature.length);
+
+
+var svg = d3.select(".bar3chart")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
+    
+var yScale = d3.scaleLinear()
+    .domain([0, 50])
+    .range([0, svgHeight]);
+        
+var barChart = svg.selectAll("rect")
+    .data(datasetTemperature)
+    .enter()
+    .append("rect")
+    .attr("y", function(d) {
+         return svgHeight - yScale(d) 
+    })
+    .attr("height", function(d) { 
+        return yScale(d); 
+    })
+    .attr("width", barWidth - barPadding)
+    .attr("transform", function (d, i) {
+        var translate = [barWidth * i, 0]; 
+        return "translate("+ translate +")";
+    });
+    
+    var text = svg.selectAll("text")
+    .data(datasetTemperature)
+    .enter()
+    .append("text")
+    .text(function(d) {
+        return d;
+    })
+    .attr("y", function(d, i) {
+       
+        if (upOrDownHorTitle===17)
+            upOrDownHorTitle=0;
+        else upOrDownHorTitle=17;
+         return svgHeight -2-upOrDownHorTitle;
+    })
+    .attr("x", function(d, i) {
+        return barWidth * i;
+    })
+    .attr("fill", "goldenrod");
+}
+function resetTables()
+{
+  
+var svg = d3.select(".bar1chart")
+
+svg.selectAll('*').remove();
+svg= d3.select(".bar2chart")
+svg.selectAll('*').remove();
+svg= d3.select(".bar3chart")
+svg.selectAll('*').remove();
+const tableHeadEl=document.getElementById("tableHead");
+tableHeadEl.innerHTML = " Consumption <br> per Hour (WH)";
+const table2HeadEl=document.getElementById("table2Head");
+table2HeadEl.innerHTML =" Consumption of living room<br>devices per Hour (WH)";
+const table3HeadEl=document.getElementById("table3Head");
+table3HeadEl.innerHTML =" Temperatures <br> per Hour (C)";
+const table1AboveEl=document.getElementById("table1Above");
+table1AboveEl.innerHTML ="";
+}
+
+
+
 
 });
